@@ -42,12 +42,15 @@ struct Game {
     board: Vec<Vec<Cell>>,
 }
 
-const BOARD_SIZE_I: usize = 5;
+const BOARD_SIZE_I: usize = 15;
 const BOARD_SIZE_J: usize = 10;
 
 fn setup_cameras(mut commands: Commands) {
+    // /zero.y + 3
+    let look_at = Vec3::ZERO + Vec3::X * 7.0;
+
     commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(0.0, 5.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        transform: Transform::from_xyz(7.0, 5.0, 20.0).looking_at(look_at, Vec3::Y),
         ..default()
     });
 }
@@ -68,10 +71,23 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut game: ResMu
 
     // spawn the game board
     let cell_scene = asset_server.load("AlienCake/tile.glb#Scene0");
+    let tree_scene = asset_server.load("models/tree.glb#Scene0");
     game.board = (0..BOARD_SIZE_J)
         .map(|j| {
             (0..BOARD_SIZE_I)
                 .map(|i| {
+                    let should_spawn_tree = rand::thread_rng().gen_bool(0.2);
+                    if should_spawn_tree {
+                        commands.spawn(SceneBundle {
+                            transform: Transform {
+                                translation: Vec3::new(i as f32, 0.0, j as f32),
+                                rotation: Quat::from_rotation_x(PI / 2.0),
+                                ..default()
+                            },
+                            scene: tree_scene.clone(),
+                            ..default()
+                        });
+                    }
                     commands.spawn(SceneBundle {
                         transform: Transform::from_xyz(i as f32, 0.0, j as f32),
                         scene: cell_scene.clone(),
