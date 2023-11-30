@@ -31,7 +31,7 @@ fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
                 rotation: Quat::from_rotation_y(-PI),
                 ..default()
             },
-            scene: asset_server.load("AlienCake/alien.glb#Scene0"),
+            scene: asset_server.load("models/alien.glb#Scene0"),
             ..default()
         },
     ));
@@ -70,7 +70,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut game: ResMu
     });
 
     // spawn the game board
-    let cell_scene = asset_server.load("AlienCake/tile.glb#Scene0");
+    let cell_scene = asset_server.load("models/tile.glb#Scene0");
     let tree_scene = asset_server.load("models/tree.glb#Scene0");
     game.board = (0..BOARD_SIZE_J)
         .map(|j| {
@@ -80,6 +80,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut game: ResMu
                     if should_spawn_tree {
                         commands.spawn(SceneBundle {
                             transform: Transform {
+                                //spawn the trees
                                 translation: Vec3::new(i as f32, 0.0, j as f32),
                                 rotation: Quat::from_rotation_x(PI / 2.0),
                                 ..default()
@@ -89,6 +90,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut game: ResMu
                         });
                     }
                     commands.spawn(SceneBundle {
+                        //spawn the tiles
                         transform: Transform::from_xyz(i as f32, 0.0, j as f32),
                         scene: cell_scene.clone(),
                         ..default()
@@ -128,7 +130,6 @@ fn move_player(
             direction += Vec3::NEG_X;
             rotation = PI / 2.;
         }
-        //check if the player is in the board
 
         if direction.length_squared() > 0.0 {
             direction = direction.normalize();
