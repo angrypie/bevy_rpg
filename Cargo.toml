@@ -16,3 +16,5 @@ opt-level = 3
 [dependencies]
 bevy = { version = "0.12.0", features = ["dynamic_linking"] }
 rand = "0.8.5"
+noise = { version = "0.8.2"}
+
