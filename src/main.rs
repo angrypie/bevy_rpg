@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 
 use bevy::prelude::*;
+use bevy_flycam::prelude::*;
 use rand::Rng;
 
 use noise::utils::{NoiseMapBuilder, PlaneMapBuilder};
@@ -8,13 +9,36 @@ use noise::{Fbm, Perlin};
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
         .init_resource::<Game>()
-        .add_systems(Startup, (setup_cameras, setup_game, spawn_player))
+        .add_plugins(DefaultPlugins)
+        .add_plugins(PlayerPlugin)
+        .insert_resource(KeyBindings {
+            move_forward: KeyCode::Comma,
+            move_backward: KeyCode::O,
+            move_left: KeyCode::A,
+            move_right: KeyCode::E,
+            ..Default::default()
+        })
+        // .add_systems(Startup, setup_cameras) //TODO setup game camera
+        .add_systems(Startup, (setup_game, spawn_player))
         .add_systems(Update, (move_player, respanw_board))
         .add_systems(Update, bevy::window::close_on_esc)
         .run();
 }
+const BOARD_SIZE_COL: usize = 48;
+const BOARD_SIZE_ROW: usize = 48;
+
+// fn setup_cameras(mut commands: Commands) {
+//     // /zero.y + 3
+//     let mid_x = BOARD_SIZE_COL as f32 / 2.0;
+//     let mid_z = BOARD_SIZE_ROW as f32 / 2.0;
+//     let look_at = Vec3::new(mid_x, 0.0, mid_z);
+
+//     commands.spawn(Camera3dBundle {
+//         transform: Transform::from_xyz(mid_x, mid_x, mid_z * 3.0).looking_at(look_at, Vec3::Y),
+//         ..default()
+//     });
+// }
 
 #[derive(Component)]
 struct Xp(u32);
@@ -40,21 +64,6 @@ fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 #[derive(Resource, Default)]
 struct Game {}
-
-const BOARD_SIZE_COL: usize = 48;
-const BOARD_SIZE_ROW: usize = 48;
-
-fn setup_cameras(mut commands: Commands) {
-    // /zero.y + 3
-    let mid_x = BOARD_SIZE_COL as f32 / 2.0;
-    let mid_z = BOARD_SIZE_ROW as f32 / 2.0;
-    let look_at = Vec3::new(mid_x, 0.0, mid_z);
-
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(mid_x, mid_x, mid_z * 3.0).looking_at(look_at, Vec3::Y),
-        ..default()
-    });
-}
 
 fn setup_game(mut commands: Commands, asset_server: Res<AssetServer>) {
     // reset the game state
@@ -132,7 +141,7 @@ fn respanw_board(
     asset_server: Res<AssetServer>,
     terrain_query: Query<Entity, With<Terrain>>,
 ) {
-    if keyboard_input.pressed(KeyCode::Space) {
+    if keyboard_input.pressed(KeyCode::G) {
         for entity in &terrain_query {
             commands.entity(entity).despawn_recursive()
         }
